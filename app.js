@@ -60,14 +60,14 @@ const checkWinnerAndRestart = () => {
   if (userScore >= WIN_SCORE) {
     setChoicesDisabled(true);
     setMessage("🏆 You are the WINNER! (First to 10) — Restarting...", "green");
-    setTimeout(resetGame, 1500);
+    setTimeout(resetGame, 2500);
     return true;
   }
 
   if (compScore >= WIN_SCORE) {
     setChoicesDisabled(true);
     setMessage("💻 Computer is the WINNER! (First to 10) — Restarting...", "crimson");
-    setTimeout(resetGame, 1500);
+    setTimeout(resetGame, 2500);
     return true;
   }
 
@@ -119,3 +119,4 @@ document.addEventListener("keydown", (e) => {
 
 // Initial message
 setMessage("Welcome! First to 10 points wins. Tap an icon to play.");
+
