@@ -1,71 +1,86 @@
-alert("play game by clicking on icons");
 let userScore = 0;
 let compScore = 0;
+
 const msg = document.querySelector("#msg");
 const userScorePara = document.querySelector("#user-score");
 const compScorePara = document.querySelector("#comp-score");
-
+const resetBtn = document.querySelector("#reset");
 const choices = document.querySelectorAll(".choice");
-choices.forEach((choice) => {
-    choice.addEventListener("click", () => {
-        const userChoice = choice.getAttribute("id");
-        playGame(userChoice);
-    });
-    //playGame(userChoice);
-});
+
+const options = ["rock", "paper", "scissor"];
+
+const setMessage = (text, bg = "darkslategray") => {
+  msg.innerText = text;
+  msg.style.backgroundColor = bg;
+};
 
 const genCompChoice = () => {
-    const options = ["rock", "paper", "scissor"];
-    const randIdx = Math.floor(Math.random() * 3);
+  const randIdx = Math.floor(Math.random() * options.length);
+  return options[randIdx];
+};
 
-    return options[randIdx];
-}
+const getResult = (userChoice, compChoice) => {
+  if (userChoice === compChoice) return "draw";
 
-const drawGame = () => {
-    msg.innerText = `Game Draw`;
-    msg.style.backgroundColor = "darksLateGray";
-}
+  const winsAgainst = {
+    rock: "scissor",
+    paper: "rock",
+    scissor: "paper",
+  };
 
-const showWinner = (userwin, userChoice, compChoice) => {
-    if (userwin) {
-        userScore++;
-        msg.innerText = `You Won! ${userChoice} beats ${compChoice}`;
-        msg.style.backgroundColor = "green";
-        userScorePara.innerText = userScore;
-    } else {
-        compScore++;
-        // console.log("You Lose");
-        msg.innerText = `You Lose. ${compChoice} beats ${userChoice}`;
-        msg.style.backgroundColor = "red";
-        compScorePara.innerText = compScore;
-    }
-}
+  return winsAgainst[userChoice] === compChoice ? "win" : "lose";
+};
 
-// const finishGame = () => {
-//     if(userScorePara && compScorePara === 10){
-//         choice.disabled;
-//     }
-// }
+const flashPicked = (id) => {
+  choices.forEach((c) => c.classList.remove("picked"));
+  const picked = document.getElementById(id);
+  if (!picked) return;
+  picked.classList.add("picked");
+  setTimeout(() => picked.classList.remove("picked"), 250);
+};
 
 const playGame = (userChoice) => {
+  const compChoice = genCompChoice();
+  const result = getResult(userChoice, compChoice);
 
-    const compChoice = genCompChoice();
+  flashPicked(userChoice);
 
+  if (result === "draw") {
+    setMessage(`Draw! You both chose ${userChoice}.`, "darkslategray");
+    return;
+  }
 
-    if (userChoice === compChoice) {
-        drawGame();
-    } else {
-        let userWin = true;
-        if (userChoice === "rock") {
-            userWin = compChoice === "paper" ? false : true;
-        } else if (userChoice === "paper") {
-            userWin = compChoice === "scissor" ? false : true;
-        } else {
-            userWin = compChoice === "rock" ? false : true;
-        }
-
-        showWinner(userWin, userChoice, compChoice);
-        // finishGame();
-    }
-
+  if (result === "win") {
+    userScore++;
+    userScorePara.innerText = userScore;
+    setMessage(`You won! ${userChoice} beats ${compChoice}.`, "green");
+  } else {
+    compScore++;
+    compScorePara.innerText = compScore;
+    setMessage(`You lost! ${compChoice} beats ${userChoice}.`, "crimson");
+  }
 };
+
+choices.forEach((choice) => {
+  choice.addEventListener("click", () => playGame(choice.id));
+});
+
+resetBtn.addEventListener("click", () => {
+  userScore = 0;
+  compScore = 0;
+  userScorePara.innerText = "0";
+  compScorePara.innerText = "0";
+  setMessage("Scores reset. Play your move!");
+});
+
+// ✅ Keyboard support: R/P/S to play, Enter to reset
+document.addEventListener("keydown", (e) => {
+  const key = e.key.toLowerCase();
+  if (key === "r") playGame("rock");
+  if (key === "p") playGame("paper");
+  if (key === "s") playGame("scissor");
+  if (key === "enter") resetBtn.click();
+});
+
+// Initial message (instead of alert)
+setMessage("Welcome! Tap an icon to play.");
